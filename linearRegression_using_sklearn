@@ -1,0 +1,38 @@
+import pandas as pd
+from sklearn.datasets import fetch_california_housing
+import numpy as np
+import matplotlib.pyplot as plt
+ip=fetch_california_housing();
+
+print(ip)
+
+dataset=pd.DataFrame(ip.data)
+dataset.columns=ip.feature_names
+dataset.head()
+
+x=dataset
+y=ip.target
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+     x, y, test_size=0.35, random_state=42)
+X_train.columns=ip.feature_names
+
+from sklearn.preprocessing import StandardScaler
+scaler=StandardScaler();
+X_train=scaler.fit_transform(X_train)
+
+X_test=scaler.transform(X_test);
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score
+reg=LinearRegression()
+reg.fit(X_train,y_train)
+mse=cross_val_score(reg,X_train,y_train,scoring='neg_mean_squared_error',cv=5)
+print(mse)
+np.mean(mse)
+
+predicted=reg.predict(X_test)
+print(predicted);
+
+import seaborn as sns
+sns.displot(predicted-y_test,kind='kde',clip= (-15000,-5000))
